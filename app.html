@@ -74,6 +74,22 @@
 
         <div id="RG-NFA-tab" class="tab-pane fade">
             <h3 class="text-center font-weight-bold">Regular Grammar to NFA</h3>
+            <div class="row m-5 input-field mx-auto">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="rg-input" class="font-weight-bold">Regular Grammars (Input)</label>
+                        <textarea class="form-control" id="rg-input" rows="5" placeholder="Enter Regular Grammars"></textarea>
+						<button class="btn btn-secondary m-2" type="button" onclick="">Convert RG to NFA</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="test-string-input" class="font-weight-bold">Check Strings (Input)</label>
+                        <textarea class="form-control" id="test-string-input" rows="5" placeholder="Enter minimun 5 test strings"></textarea>
+						<button class="btn btn-secondary m-2" type="button" onclick="">Check</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="NFA-RG-tab" class="tab-pane fade">
