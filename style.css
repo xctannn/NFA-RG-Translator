@@ -1,0 +1,24 @@
+.input-field {
+    width: 60%;
+}
+
+.outputTable {
+    width: 70%;
+}
+
+.outputTable th {
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.outputTable td {
+    text-align: center;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.tableTitle {
+    font-weight: bold;
+}

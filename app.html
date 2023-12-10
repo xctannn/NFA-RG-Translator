@@ -13,10 +13,10 @@
     <div>
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#home-tab" id="defaultOpen">Home</a>
+                <a class="nav-link" data-toggle="tab" href="#home-tab">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#RG-NFA-tab">RG → NFA</a>
+                <a class="nav-link" data-toggle="tab" href="#RG-NFA-tab" id="defaultOpen">RG → NFA</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#NFA-RG-tab">NFA → RG</a>
@@ -79,17 +79,35 @@
                     <div class="form-group">
                         <label for="rg-input" class="font-weight-bold">Regular Grammars (Input)</label>
                         <textarea class="form-control" id="rg-input" rows="5" placeholder="Enter Regular Grammars"></textarea>
-						<button class="btn btn-secondary m-2" type="button" onclick="">Convert RG to NFA</button>
+						<button class="btn btn-secondary m-2" type="button" id="rgToNFABtn">Convert RG to NFA</button>
+						<button class="btn btn-info m-2" type="button" id="clearBtn">Clear</button>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="test-string-input" class="font-weight-bold">Check Strings (Input)</label>
                         <textarea class="form-control" id="test-string-input" rows="5" placeholder="Enter minimun 5 test strings"></textarea>
-						<button class="btn btn-secondary m-2" type="button" onclick="">Check</button>
+						<button class="btn btn-secondary m-2" type="button" id="checkStringsBtn">Check</button>
                     </div>
                 </div>
             </div>
+            <div class="ml-5 mt-5 pl-5">
+                <div class="row">
+                    <div class="col-md-2">
+                        <p id="outputNfaInfo"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="tableWETitle" class="tableTitle"></div>
+                        <table id="transitionTableEpsilon" class="outputTable"></table>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="tableWOETitle" class="tableTitle"></div>
+                        <table id="transitionTableWOEpsilon" class="outputTable"></table>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+              </div>
         </div>
 
         <div id="NFA-RG-tab" class="tab-pane fade">
