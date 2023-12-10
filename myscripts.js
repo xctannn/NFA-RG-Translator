@@ -36,7 +36,7 @@ class NFA_with_epsilon
 	constructor(grammars = []) {
 		this.states = [];
 		this.finalStates = [];
-		this.input_with_epsilon = [];
+		this.inputWithEpsilon = [];
 		this.grammars = [];
         this.arr_with_epsilon = [];
 
@@ -45,8 +45,8 @@ class NFA_with_epsilon
         this.initializeOutputStates(grammars);
 
         this.grammars = grammars.sort();
-		this.input_with_epsilon.sort();
-        this.input_with_epsilon.push('\u03B5'); // ε
+		this.inputWithEpsilon.sort();
+        this.inputWithEpsilon.push('\u03B5'); // ε
         this.states.sort((a, b) => a.name.localeCompare(b.name));
         this.generateTableInfo();
     }
@@ -66,8 +66,8 @@ class NFA_with_epsilon
 
             processesArray.forEach((process) => {
                 if (process.length > 1) {
-                    if (!this.input_with_epsilon.includes(process[0]))
-                        this.input_with_epsilon.push(process[0]);
+                    if (!this.inputWithEpsilon.includes(process[0]))
+                        this.inputWithEpsilon.push(process[0]);
                 } 
                 else if (process === '\u03B5') { // ε
                     this.finalStates.push(currentState);
@@ -86,7 +86,7 @@ class NFA_with_epsilon
 
     initializeOutputStates(grammars) {
         for (const state of this.states) 
-            state.setOutput(this.input_with_epsilon);
+            state.setOutput(this.inputWithEpsilon);
         
         for (const grammarRule of grammars) {
             const [currentState, processes] = grammarRule.split("->");
@@ -106,12 +106,12 @@ class NFA_with_epsilon
 		for (var i = 0; i < this.states.length; i++) {
 			this.arr_with_epsilon[i] = [];
 			
-			for (var j=0; j<this.input_with_epsilon.length; j++) { 
+			for (var j=0; j<this.inputWithEpsilon.length; j++) { 
 				// Initialize each cell with the empty set symbol
 				this.arr_with_epsilon[i][j] = '\u2205';
 				// Check if it's not the epsilon symbol
-				if (j !== this.input_with_epsilon.length - 1) {
-					var nextState = this.states[i].output[this.input_with_epsilon[j]];
+				if (j !== this.inputWithEpsilon.length - 1) {
+					var nextState = this.states[i].output[this.inputWithEpsilon[j]];
 					if (nextState.length != 0) {
 						nextState.sort();
 						this.arr_with_epsilon[i][j] = nextState.toString()
@@ -132,29 +132,91 @@ class NFA_with_epsilon
 	getDetails() {
         const M = `M = (Q,${'\u03A3'},${'\u03B4'},p\u2080,F)`;
         const Q = `Q = {${this.getStatesNames().sort().join(",")}}`;
-        const sigma = `${'\u03A3'} = {${this.input_with_epsilon.slice(0, -1).sort().join(",")}}`;
+        const sigma = `${'\u03A3'} = {${this.inputWithEpsilon.slice(0, -1).sort().join(",")}}`;
         const transitionFunction = `${'\u03B4'}: Q x ${'\u03A3'}${'\u03B5'} -> Pow(Q)`;
         const p0 = `p\u2080 = ${this.states[0].name}`;
         const F = `F = {${this.finalStates.sort().join(",")}}`;
         return `${M}\n${Q}\n${sigma}\n${transitionFunction}\n${p0}\n${F}`;
     }
+
+    isAcceptable(input) {
+        const initialState = this.states.find(state => state.isInitialState);
+        if (input === '\u03B5') 
+            return this.checkEpsilonInput(initialState);
+        else
+            return this.checkInput(initialState, input, 0);
+    }
+	
+	checkEpsilonInput(currentState)
+	{
+		if (currentState.isFinalState)
+			return true;
+
+		for (const directState of currentState.directState){
+            const nextState = this.states.find(state => state.name === directState);
+
+            if (nextState && this.checkEpsilonInput(nextState)) {
+                return true;
+            }
+        }
+        return false;
+	}
+
+	checkInput(currentState,input,inputIndex) {
+        if (currentState.isFinalState && inputIndex === input.length)
+            return true;
+        
+        else if (inputIndex === input.length) {
+            return currentState.directState.some(directState => {
+                const nextState = this.states.find(state => state.name === directState);
+                return nextState && this.checkInput(nextState, input, inputIndex);
+            });
+        } 
+        else {
+            let pass = false;
+    
+            // Check regular input
+            const outputStates = currentState.output[input[inputIndex]];
+    
+            if (outputStates) {
+                for (const nextStateName of outputStates) {
+                    const nextState = this.states.find(state => state.name === nextStateName);
+    
+                    if (nextState && this.checkInput(nextState, input, inputIndex + 1))
+                        pass = true;
+                }
+            }
+			
+			// Check epsilon
+			for (const directState of currentState.directState) {
+                const nextState = this.states.find(state => state.name === directState);
+    
+                if (nextState && this.checkInput(nextState, input, inputIndex))
+                    pass = true;
+            }
+            return pass;
+		}
+	}
 }
 
-function createTable(nfa) {
-    var table = document.getElementById("transitionTableEpsilon");
-    var tableTitle = document.getElementById("tableWETitle");
+function createTransitionTable(tableId, titleId, nfa) {
+    var table = document.getElementById(tableId);
+    var tableTitle = document.getElementById(titleId);
 
     table.innerHTML = '';
     tableTitle.innerHTML = '';
 
-    tableTitle.innerHTML = 'Transition Table';
+    if (tableId == 'transitionTableEpsilon')
+        tableTitle.innerHTML = 'Transition Table';
+    else
+        tableTitle.innerHTML = 'Transition Table W/O Epsilon';
 
     // Create header
     var row = table.insertRow(0);
     var cell = row.insertCell(0);
     cell.innerHTML = '\u03B4' + "NFA"; // δNFA 
 
-    nfa.input_with_epsilon.forEach((symbol,index) => {
+    nfa.inputWithEpsilon.forEach((symbol,index) => {
         cell = row.insertCell(index+1);
         cell.innerHTML = symbol;
     });
@@ -172,10 +234,35 @@ function createTable(nfa) {
         else
             cell.innerHTML = state.name;
         
-        for (var j = 0; j < nfa.input_with_epsilon.length; j++) {
+        for (var j = 0; j < nfa.inputWithEpsilon.length; j++) {
             cell = row.insertCell(j+1);
             cell.innerHTML = "{" + nfa.arr_with_epsilon[i][j] + "}";
         }
+    });
+}
+
+function createTestStringsTable(input, acceptance) {
+    var table = document.getElementById("testStringsTable");
+    var tableTitle = document.getElementById("stringstableTitle");
+
+    table.innerHTML = '';
+    tableTitle.innerHTML = '';
+
+    var row = table.insertRow(0);
+    var cell = row.insertCell(0);
+    cell.innerHTML = "<strong>Input String</strong>";
+    cell = row.insertCell(1);
+    cell.innerHTML = "<strong>Acceptable?</strong>";
+
+    input.forEach((string, i) =>{
+        row = table.insertRow(-1);
+        cell = row.insertCell(0);
+        cell.innerHTML = string;
+        cell = row.insertCell(1);
+        if (acceptance[i])
+            cell.innerHTML = "Yes";
+        else
+            cell.innerHTML = "No";
     });
 }
 
@@ -183,14 +270,19 @@ function convertRgToNFA() {
     var rgInput = document.getElementById('rg-input').value.split('\n');
     const nfa = new NFA_with_epsilon(rgInput);
     document.getElementById("outputNfaInfo").innerText = nfa.getDetails();
-	createTable(nfa);
+	createTransitionTable("transitionTableEpsilon", "tableWETitle", nfa);
+    return nfa;
 }
 
-// function checkStrings() {
-//     var rgInput = document.getElementById('rg-input').value.split('\n');
-// 	var testStringsInput = document.getElementById("test-string-input").value.split('\n');
-    
-// }
+function checkStrings() {
+	var testStringsInput = document.getElementById("test-string-input").value.split('\n');
+    var acceptance = [];
+	const nfa = convertRgToNFA();
+    testStringsInput.forEach((inputString) =>{
+        acceptance.push(nfa.isAcceptable(inputString));
+    });
+    createTestStringsTable(testStringsInput, acceptance);
+}
 
 function clearText() {
     document.getElementById("rg-input").value = "";
@@ -198,14 +290,17 @@ function clearText() {
     document.getElementById("outputNfaInfo").innerText = "";
     document.getElementById("transitionTableEpsilon").innerHTML = '';
     document.getElementById("transitionTableWOEpsilon").innerHTML = '';
+    document.getElementById("testStringsTable").innerHTML = '';
     document.getElementById("tableWETitle").innerHTML = '';
     document.getElementById("tableWOETitle").innerHTML = '';
+    document.getElementById("stringstableTitle").innerHTML = '';
 }
 
 function main() {
     document.getElementById("defaultOpen").click();
     document.getElementById("clearBtn").addEventListener("click", clearText);
     document.getElementById("rgToNFABtn").addEventListener("click", convertRgToNFA);
+    document.getElementById("checkStringsBtn").addEventListener("click", checkStrings);
 }
 
 main()
