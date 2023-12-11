@@ -22,3 +22,7 @@
 .tableTitle {
     font-weight: bold;
 }
+
+ul li {
+    margin: 8px;
+}
