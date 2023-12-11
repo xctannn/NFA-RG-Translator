@@ -17,9 +17,7 @@ class State
     }
 
 	setOutput(input) {
-		for(let i of input) {
-			this.output[i] = [];
-		}
+		input.forEach(i => (this.output[i] = []));
 	}
 	
 	addDirectState(state) {
@@ -31,19 +29,16 @@ class State
 	}
 }
 
-class NFA_with_epsilon
+class NfaWithEpsilon
 {
 	constructor(grammars = []) {
 		this.states = [];
 		this.finalStates = [];
 		this.inputWithEpsilon = [];
 		this.grammars = [];
-        this.arr_with_epsilon = [];
+        this.arrWithEpsilon = [];
 
-        this.initializeStates(grammars);
-        this.extractGrammarState(grammars);
-        this.initializeOutputStates(grammars);
-
+        this.initializeNFA(grammars);
         this.grammars = grammars.sort();
 		this.inputWithEpsilon.sort();
         this.inputWithEpsilon.push('\u03B5'); // ε
@@ -51,12 +46,14 @@ class NFA_with_epsilon
         this.generateTableInfo();
     }
 		
-    initializeStates(grammars) {
+    initializeNFA(grammars) {
         for (const grammarRule of grammars) {
             const [currentState] = grammarRule.split("->");
             this.states.push(new State(currentState));
         }
         this.states[0].setInitialState();
+        this.extractGrammarState(grammars);
+        this.initializeOutputStates(grammars);
     }
 
     extractGrammarState(grammars) {
@@ -102,24 +99,24 @@ class NFA_with_epsilon
     }
 
     generateTableInfo()	{
-		this.arr_with_epsilon = [];
-		for (var i = 0; i < this.states.length; i++) {
-			this.arr_with_epsilon[i] = [];
+		this.arrWithEpsilon = [];
+		for (let i = 0; i < this.states.length; i++) {
+			this.arrWithEpsilon[i] = [];
 			
-			for (var j=0; j<this.inputWithEpsilon.length; j++) { 
+			for (var j = 0; j < this.inputWithEpsilon.length; j++) { 
 				// Initialize each cell with the empty set symbol
-				this.arr_with_epsilon[i][j] = '\u2205';
+				this.arrWithEpsilon[i][j] = '\u2205';
 				// Check if it's not the epsilon symbol
 				if (j !== this.inputWithEpsilon.length - 1) {
 					var nextState = this.states[i].output[this.inputWithEpsilon[j]];
 					if (nextState.length != 0) {
 						nextState.sort();
-						this.arr_with_epsilon[i][j] = nextState.toString()
+						this.arrWithEpsilon[i][j] = nextState.toString()
 					}
 				}
 				else {
 					if (this.states[i].directState.length != 0)
-						this.arr_with_epsilon[i][j] = this.states[i].directState.toString();
+						this.arrWithEpsilon[i][j] = this.states[i].directState.toString();
 				}
 			}
 		}
@@ -183,24 +180,103 @@ class NFA_with_epsilon
 	}
 }
 
+class NfaWithoutEpsilon {
+    constructor(grammars = []) {
+        const nfaWithE = new NfaWithEpsilon(grammars);
+
+        this.states = [...nfaWithE.states];
+        this.finalStates = [...nfaWithE.finalStates];
+        this.initialState = this.states[0].name;
+        this.inputWOEpsilon = [...nfaWithE.inputWithEpsilon].slice(0, -1); // Remove epsilon
+        this.grammars = [...nfaWithE.grammars];
+
+        this.arrWOEpsilon = Array.from({ length: this.states.length }, () =>
+            Array(this.inputWOEpsilon.length).fill('\u2205')  // Fill with empty set symbol
+        );
+
+        this.populateTable();
+
+		// Check whether the initial states can be final states due to epsilon
+        if (this.checkFinalState(this.states[0])) {
+            this.finalStates.push(this.states[0].name);
+            this.states[0].isFinalState = true;
+        }
+    }
+
+    populateTable() {
+        for (let i = 0; i < this.states.length; i++) {
+            for (let j = 0; j < this.inputWOEpsilon.length; j++) {
+                const tempNextState = this.getOutput([], this.states[i], this.inputWOEpsilon[j]).sort();
+
+                if (tempNextState.length !== 0) {
+                    this.arrWOEpsilon[i][j] = tempNextState.toString();
+                }
+            }
+        }
+    }
+
+    getOutput(tempNextState, currentState, currentInput) {
+        const outputState = currentState.output[currentInput];
+
+        for (const output_state of outputState) {
+            if (!tempNextState.includes(output_state)) {
+                tempNextState.push(output_state);
+                tempNextState = this.checkDirectState(tempNextState, this.getStateByName(output_state));
+            }
+        }
+
+        for (const directState of currentState.directState) 
+            tempNextState = this.getOutput(tempNextState, this.getStateByName(directState), currentInput);
+        
+        return tempNextState;
+    }
+
+    checkDirectState(tempNextState, currentState) {
+        for (const directState of currentState.directState) {
+            if (!tempNextState.includes(directState)) {
+                tempNextState.push(directState);
+                tempNextState = this.checkDirectState(tempNextState, this.getStateByName(directState));
+            }
+        }
+        return tempNextState;
+    }
+
+    checkFinalState(currentState) {
+        for (const directState of currentState.directState) {
+            if (this.checkFinalState(this.getStateByName(directState)))
+                return true;
+        }
+        return currentState.isFinalState;
+    }
+
+    getStateByName(name) {
+        return this.states.find(state => state.name === name);
+    }
+}
+
 function createTransitionTable(tableId, titleId, nfa) {
     var table = document.getElementById(tableId);
     var tableTitle = document.getElementById(titleId);
 
     table.innerHTML = '';
     tableTitle.innerHTML = '';
+    let withEpsilon = "";
 
-    if (tableId == 'transitionTableEpsilon')
-        tableTitle.innerHTML = 'Transition Table';
-    else
+    if (tableId == 'transitionTableWOEpsilon'){
         tableTitle.innerHTML = 'Transition Table W/O Epsilon';
+        withEpsilon = "WOEpsilon";
+    }
+    else{
+        tableTitle.innerHTML = 'Transition Table';
+        withEpsilon = "WithEpsilon";
+    }
 
     // Create header
     var row = table.insertRow(0);
     var cell = row.insertCell(0);
     cell.innerHTML = '\u03B4' + "NFA"; // δNFA 
 
-    nfa.inputWithEpsilon.forEach((symbol,index) => {
+    nfa['input'+withEpsilon].forEach((symbol,index) => {
         cell = row.insertCell(index+1);
         cell.innerHTML = symbol;
     });
@@ -218,19 +294,17 @@ function createTransitionTable(tableId, titleId, nfa) {
         else
             cell.innerHTML = state.name;
         
-        for (var j = 0; j < nfa.inputWithEpsilon.length; j++) {
+        for (var j = 0; j < nfa['input'+withEpsilon].length; j++) {
             cell = row.insertCell(j+1);
-            cell.innerHTML = "{" + nfa.arr_with_epsilon[i][j] + "}";
+            cell.innerHTML = "{" + nfa['arr'+withEpsilon][i][j] + "}";
         }
     });
 }
 
 function createTestStringsTable(input, acceptance) {
     var table = document.getElementById("testStringsTable");
-    var tableTitle = document.getElementById("stringstableTitle");
 
     table.innerHTML = '';
-    tableTitle.innerHTML = '';
 
     var row = table.insertRow(0);
     var cell = row.insertCell(0);
@@ -252,10 +326,12 @@ function createTestStringsTable(input, acceptance) {
 
 function convertRgToNFA() {
     var rgInput = document.getElementById('rg-input').value.split('\n');
-    const nfa = new NFA_with_epsilon(rgInput);
-    document.getElementById("outputNfaInfo").innerText = nfa.getDetails();
-	createTransitionTable("transitionTableEpsilon", "tableWETitle", nfa);
-    return nfa;
+    const nfaWithEpsilon = new NfaWithEpsilon(rgInput);
+    const nfaWOEpsilon = new NfaWithoutEpsilon(rgInput);
+    document.getElementById("outputNfaInfo").innerText = nfaWithEpsilon.getDetails();
+	createTransitionTable("transitionTableEpsilon", "tableWETitle", nfaWithEpsilon);
+	createTransitionTable("transitionTableWOEpsilon", "tableWOETitle", nfaWOEpsilon);
+    return nfaWithEpsilon;
 }
 
 function checkStrings() {
@@ -277,7 +353,6 @@ function clearText() {
     document.getElementById("testStringsTable").innerHTML = '';
     document.getElementById("tableWETitle").innerHTML = '';
     document.getElementById("tableWOETitle").innerHTML = '';
-    document.getElementById("stringstableTitle").innerHTML = '';
 }
 
 function main() {

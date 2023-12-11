@@ -10,13 +10,13 @@
     text-align: center;
     font-weight: bold;
     border: 1px solid black;
-    padding: 5px;
+    padding: 8px;
 }
 
 .outputTable td {
     text-align: center;
     border: 1px solid black;
-    padding: 5px;
+    padding: 8px;
 }
 
 .tableTitle {
