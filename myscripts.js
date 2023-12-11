@@ -142,25 +142,10 @@ class NFA_with_epsilon
     isAcceptable(input) {
         const initialState = this.states.find(state => state.isInitialState);
         if (input === '\u03B5') 
-            return this.checkEpsilonInput(initialState);
+            return (initialState.isFinalState);
         else
             return this.checkInput(initialState, input, 0);
     }
-	
-	checkEpsilonInput(currentState)
-	{
-		if (currentState.isFinalState)
-			return true;
-
-		for (const directState of currentState.directState){
-            const nextState = this.states.find(state => state.name === directState);
-
-            if (nextState && this.checkEpsilonInput(nextState)) {
-                return true;
-            }
-        }
-        return false;
-	}
 
 	checkInput(currentState,input,inputIndex) {
         if (currentState.isFinalState && inputIndex === input.length)
@@ -174,7 +159,6 @@ class NFA_with_epsilon
         } 
         else {
             let pass = false;
-    
             // Check regular input
             const outputStates = currentState.output[input[inputIndex]];
     
@@ -190,7 +174,7 @@ class NFA_with_epsilon
 			// Check epsilon
 			for (const directState of currentState.directState) {
                 const nextState = this.states.find(state => state.name === directState);
-    
+
                 if (nextState && this.checkInput(nextState, input, inputIndex))
                     pass = true;
             }
