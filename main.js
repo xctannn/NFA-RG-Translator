@@ -134,16 +134,6 @@ function getFinalStatesNFA() {
     console.log(listOfFinalStates);
 } 
 
-// function insertEpsilonVariable() {
-//     var text = document.getElementById('string-variables');
-//     text.value += '\u03B5';
-// }
-
-// function insertEpsilonVariableAtCheckString() {
-//     var text = document.getElementById('string-to-check');
-//     text.value += '\u03B5';
-// }
-
 function generateTable() {
     //clear the existing table content
     document.getElementById('transition-table-nfa').innerHTML = "";
