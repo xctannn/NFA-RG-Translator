@@ -1,0 +1,55 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.nfa-table {
+    width: 300px;
+    height: 300px;
+    border: solid 1px black;
+    padding: 5px;
+}
+
+.nfa-table table {
+    border-collapse: collapse;
+    width: 100%;
+    height: 100%;
+}
+
+.nfa-table tr {
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.table-container table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.table-container th, td {
+    border: 1px solid black;
+    padding: 5px;
+}
+
+/* new added property */
+textarea {
+    resize: none;
+}
+
+button {
+    margin-top: 5px;
+}
+
+/* --------- new for NFA-to-RG ---------- */
+.nfa-rg-left {
+    width: 30%;
+    float: left;
+}
+
+.nfa-rg-right {
+    width: 60%;
+    float: right;
+}

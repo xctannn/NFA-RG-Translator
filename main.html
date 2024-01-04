@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="main.css">
+        <script src="main.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NFA to RG Translator</title>
+    </head>
+    <body>
+        <h3 class="text-center font-weight-bold">NFA to Regular Grammar</h3>
+        <div class="nfa-rg-left">
+            <p><strong>NFA (Input)</strong></p>
+            <div>*Use comma(,) to separate the variable*</div>
+            <div>
+                <table class="input-table-nfa">
+                    <tr>
+                        <td>Σ</td>
+                        <td>
+                            <textarea id="string-variables" rows="1"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Q</td>
+                        <td>
+                            <textarea id="string-states" rows="1"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>START</td>
+                        <td>
+                            <textarea id="string-start-state" rows="1"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>FINAL</td>
+                        <td>
+                            <textarea id="string-final-states" rows="1"></textarea>
+                        </td>
+                    </tr>
+                  </table>
+            </div>
+            <button onclick="generateTable()">Create Transition Table</button>
+            <p><strong>Transition Table</strong></p>
+            <div>*Please input the regular grammar.*</div>
+            <div class="nfa-table">
+                <table id="transition-table-nfa"></table>
+            </div>
+            <button onclick="convertNFAtoRG()">Convert NFA to RG</button>
+        </div>
+
+        <div class="nfa-rg-right">
+            <p><strong>Check Strings (Input)</strong></p>
+            <div>
+                <textarea id="string-to-check" rows="11" spellcheck="false" placeholder="Enter minimun 5 test strings"></textarea>
+                <textarea id="string-check-result" rows="11" cols="5" spellcheck="false"></textarea>
+            </div>
+            <button onclick="getStringToCheck()">Check</button>
+
+            <p><strong>Regular Grammar</strong></p>
+            <div class="nfa-table">
+                <table id="rg-table"></table>
+            </div>
+        </div>
+    </body>
+</html>
