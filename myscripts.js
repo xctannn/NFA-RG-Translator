@@ -93,6 +93,8 @@ class NfaWithEpsilon
                     const foundState = this.states.find(state => state.name === currentState);
                     if(foundState) 
                         foundState.output[process[0]].push(process[1]);
+                    console.log(foundState.name);
+                    console.log(foundState.output);
                 }
             });
         }
