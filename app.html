@@ -139,7 +139,7 @@
                         </table>
                     </div>
                     <button class="btn btn-info m-2" type="button" onclick="generateTable()">Create Transition Table</button>
-                    
+                    <div id="error-message"></div>
                 </div>
         
                 <div class="col-md-6">
@@ -162,6 +162,7 @@
                         <table id="transition-table-nfa"></table>
                     </div>
                     <button class="btn btn-info m-2" type="button" onclick="convertNFAtoRG()">Convert NFA to RG</button>
+                    <div id="error-message2"></div>                    
                 </div>
                 <div class="col-md-6">
                     <p><strong>Regular Grammars</strong></p>
@@ -199,6 +200,29 @@
                         <li>To clear all inputs and test strings, click on the 'Clear' button.</li>
                     </ul>
                 </ol>
+
+                <h5 class="pb-2 font-weight-bold">Follow the following steps to convert NFA to RG:</h5>
+                <ol>
+                    <li>Input NFA</li>
+                    <ul>
+                        <li>Enter your NFA for Σ, Q, START and FINAL by using a comma to separate the variable.</li>
+                        <li>Click on the 'Create Transition Table' button to generate transition tables for your grammars. </li>
+                        <li>Must enter minimum 3 alphabets and 1 epsilon (ε).</li>
+                        <li>Must enter one start state only.</li>
+                    </ul>
+                    <li>Input Information in the transition table</li>
+                    <ul>
+                        <li>Enter the outgoing state for each alphabet and state in the transition table.</li>
+                        <li>Click on the 'Convert NFA to RG' button to generate regular grammar information.</li>
+                        <li>Must input the information from the NFA input only.</li>
+                    </ul>
+                    <li>Check Input Strings Acceptance</li>
+                    <ul>
+                        <li>Input your test strings line by line with no empty lines in the 'Check Strings (Input)' textarea.</li>
+                        <li>Click on the 'Check' button to check the acceptance of the strings. The acceptance result will output beside the table.</li>
+                    </ul>
+                </ol>
+
             </div>
         </div>
 
