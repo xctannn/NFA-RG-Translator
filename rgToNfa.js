@@ -328,6 +328,7 @@ function createTestStringsTable(input, acceptance) {
 
 function convertRgToNFA() {
     var rgInput = document.getElementById('rg-input').value.split('\n');
+    clearOutput();
     const nfaWithEpsilon = new NfaWithEpsilon(rgInput);
     const nfaWOEpsilon = new NfaWithoutEpsilon(rgInput);
     document.getElementById("outputNfaInfo").innerText = nfaWithEpsilon.getDetails();
@@ -346,8 +347,7 @@ function checkStrings() {
     createTestStringsTable(testStringsInput, acceptance);
 }
 
-function clearText() {
-    document.getElementById("rg-input").value = "";
+function clearOutput() {
     document.getElementById("test-string-input").value = "";
     document.getElementById("outputNfaInfo").innerText = "";
     document.getElementById("transitionTableEpsilon").innerHTML = '';
@@ -357,9 +357,14 @@ function clearText() {
     document.getElementById("tableWOETitle").innerHTML = '';
 }
 
+function clearAll(){
+    document.getElementById("rg-input").value = "";
+    clearOutput();
+}
+
 function main() {
     document.getElementById("defaultOpen").click();
-    document.getElementById("clearBtn").addEventListener("click", clearText);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
     document.getElementById("rgToNFABtn").addEventListener("click", convertRgToNFA);
     document.getElementById("checkStringsBtn").addEventListener("click", checkStrings);
 }
