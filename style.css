@@ -55,3 +55,8 @@ ul li {
 #string-to-check {
     width: 300px;
 }
+
+img { 
+    width:100%; 
+    margin:5px; 
+}
